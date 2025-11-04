@@ -45,6 +45,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8736dc92ea38e5248b8510a4c5093098, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _speed:
+    mIsShared: 0
+    mIsGlobal: 0
+    mIsDynamic: 0
+    mName: 
+    mToolTip: 
+    mPropertyMapping: 
+    mPropertyMappingOwner: {fileID: 0}
+    mValue: 100
   tree: {fileID: 3039252958360588374}
 --- !u!114 &3039252958360588374
 MonoBehaviour:

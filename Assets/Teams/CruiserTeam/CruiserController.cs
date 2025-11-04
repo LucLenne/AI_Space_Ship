@@ -1,15 +1,38 @@
-﻿using BehaviorDesigner.Runtime;
+﻿using System.Collections.Generic;
+using BehaviorDesigner.Runtime;
 using DoNotModify;
 using UnityEngine;
 
 namespace CruiserTeam
 {
+    [System.Serializable]
+    public struct WayPointCluster
+    {
+        public List<WayPoint> WayPoints;
 
+        public float weight;
+        
+        public float centerDistance { get; }
+        public void computeCenterDistance()
+        {
+            return;
+        }
+    }
+    
     public class CruiserController : BaseSpaceShipController
     {
         [SerializeField] private BehaviorTree tree;
+            
+        [SerializeField] private List<WayPointCluster> _clusters;
+        
         public override void Initialize(SpaceShipView spaceship, GameData data)
         {
+            if (tree == null && !TryGetComponent<BehaviorTree>(out tree))
+            {
+                Debug.LogError($"No BehaviorTree found", gameObject);
+                return;
+            }
+            
         }
 
         public override InputData UpdateInput(SpaceShipView spaceship, GameData data)
