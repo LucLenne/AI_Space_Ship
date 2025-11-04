@@ -26,7 +26,7 @@ namespace CruiserTeam
         Vector2 Target(GameData data, SpaceShipView spaceship)
         {
             int index = 0;
-            float closerWayPoint = Vector2.Distance(spaceship.Position, data.WayPoints[0].Position);
+            float closerWayPoint = Mathf.Infinity;
             for (int i = 0; i < data.WayPoints.Count; i++)
             {
                 float actualDistance = Vector2.Distance(spaceship.Position, data.WayPoints[i].Position);
