@@ -5,20 +5,6 @@ using UnityEngine;
 
 namespace CruiserTeam
 {
-    [System.Serializable]
-    public struct WayPointCluster
-    {
-        public List<WayPoint> WayPoints;
-
-        public float weight;
-        
-        public float centerDistance { get; }
-        public void computeCenterDistance()
-        {
-            return;
-        }
-    }
-    
     public class CruiserController : BaseSpaceShipController
     {
         [SerializeField] private BehaviorTree tree;
