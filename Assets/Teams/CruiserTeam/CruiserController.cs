@@ -1,10 +1,13 @@
-﻿using DoNotModify;
+﻿using BehaviorDesigner.Runtime;
+using DoNotModify;
+using UnityEngine;
 
-namespace ExampleTeam
+namespace CruiserTeam
 {
 
-    public class ExampleController : BaseSpaceShipController
+    public class CruiserController : BaseSpaceShipController
     {
+        [SerializeField] private BehaviorTree tree;
         public override void Initialize(SpaceShipView spaceship, GameData data)
         {
         }
@@ -15,6 +18,7 @@ namespace ExampleTeam
             float thrust = 1.0f;
             float targetOrient = spaceship.Orientation + 90.0f;
             bool needShoot = AimingHelpers.CanHit(spaceship, otherSpaceship.Position, otherSpaceship.Velocity, 0.15f);
+
             return new InputData(thrust, targetOrient, needShoot, false, false);
         }
     }
