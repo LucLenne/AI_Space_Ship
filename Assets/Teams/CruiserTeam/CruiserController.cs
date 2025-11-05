@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
-using BehaviorDesigner.Runtime;
+﻿using BehaviorDesigner.Runtime;
 using DoNotModify;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace CruiserTeam
@@ -9,22 +9,50 @@ namespace CruiserTeam
     public struct WayPointCluster
     {
         public List<WayPoint> WayPoints;
-
+        public Vector2 averagePos
+        {
+            get
+            {
+                if (averagePos == null)
+                    return Vector2.zero;
+                else
+                    return averagePos;
+            }
+        }
         public float weight;
-        
+
         public float centerDistance { get; }
         public void computeCenterDistance()
         {
             return;
         }
     }
-    
+
     public class CruiserController : BaseSpaceShipController
     {
         [SerializeField] private BehaviorTree tree;
-            
+
         [SerializeField] private List<WayPointCluster> _clusters;
-        
+        private GameData _gameData;
+        private SpaceShipView _spaceShipView;
+        public static CruiserController Instance;
+
+        public SpaceShipView SpaceShipView { get => _spaceShipView; private set => _spaceShipView = value; }
+        public GameData GameData { get => _gameData; private set => _gameData = value; }
+        public List<WayPointCluster> Clusters { get => _clusters; set => _clusters = value; }
+
+        private void Awake()
+        {
+            if (Instance != null)
+            {
+                Destroy(gameObject);
+            }
+            else
+            {
+                Instance = this;
+            }
+        }
+
         public override void Initialize(SpaceShipView spaceship, GameData data)
         {
             if (tree == null && !TryGetComponent<BehaviorTree>(out tree))
@@ -32,11 +60,12 @@ namespace CruiserTeam
                 Debug.LogError($"No BehaviorTree found", gameObject);
                 return;
             }
-            
         }
 
         public override InputData UpdateInput(SpaceShipView spaceship, GameData data)
         {
+            GameData = data;
+            SpaceShipView = spaceship;
             SpaceShipView otherSpaceship = data.GetSpaceShipForOwner(1 - spaceship.Owner);
             float thrust = 1.0f;
             float targetOrient = AimingHelpers.ComputeSteeringOrient(spaceship, Target(data, spaceship));
