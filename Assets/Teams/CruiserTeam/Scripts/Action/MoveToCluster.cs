@@ -21,16 +21,15 @@ namespace Cruiser
                     closerCluster = cluster;
                 }
             }
-            WayPoint closerPoint = new WayPoint();
+            WayPointView closerPoint;
             minDistance = float.MaxValue;
-            foreach (WayPoint point in closerCluster.WayPoints)
+            foreach (WayPointView point in closerCluster.wayPoints)
             {
                 float currentDistance = Vector2.Distance(point.Position, CruiserController.Instance.SpaceShipView.Position);
                 if (currentDistance < minDistance)
                 {
                     closerPoint = point;
                     minDistance = currentDistance;
-
                 }
             }
             return TaskStatus.Success;
