@@ -43,14 +43,32 @@ namespace CruiserTeam
         {
             get
             {
-                return _averagePos;
-            }
-            private set
-            {
-                _averagePos = value;
+                if (_averagePos == null)
+                    return Vector2.zero;
+                else
+                    return _averagePos;
             }
         }
 
+        // Returns the number of points that aren't the owner's one
+        public int nbCapturablePoints(int a_owner)
+        {
+            int count = 0;
+
+            foreach (WayPointView current in wayPoints)
+            {
+                if (current.Owner != a_owner)
+                    count++;
+            }
+
+            return count;
+        }
+        
+        /// <summary>
+        /// Will Compute the optimal trajectory to go and traverse this cluster
+        /// </summary>
+        /// <param name="a_spaceShip"></param>
+        /// <returns>List of points to go to</returns>
         public List<Vector2> OptimalTrajectory(SpaceShipView a_spaceShip)
         {
             List<Vector2> trajectory = new List<Vector2>();
@@ -74,32 +92,72 @@ namespace CruiserTeam
             List<int> indexTaken = new List<int>();
             indexTaken.Add(closest);
 
-            for (int i = 0; i < wayPoints.Count; i++)
+            int tempo = 0;
+            while (indexTaken.Count < wayPoints.Count && tempo < 100)
             {
-                int index = -1;
-                float distanceMin = Mathf.Infinity;
-
-                for (int j = 0; j < wayPoints.Count; j++)
+                int nextIndex = -1;
+                float distance = Mathf.Infinity;
+                
+                for (int i = 0; i < wayPoints.Count; i++)
                 {
-                    if (!(indexTaken.Contains(j) || j == i))
+                    if (wayPoints[i].Owner != a_spaceShip.Owner &&
+                        !indexTaken.Contains(i) &&
+                        Vector2.Distance(wayPoints[i].Position, wayPoints[indexTaken[^1]].Position) < distance)
                     {
-                        if (Vector2.Distance(wayPoints[j].Position, wayPoints[i].Position) < distanceMin)
-                        {
-                            index = j;
-                            distanceMin = Vector2.Distance(wayPoints[j].Position, wayPoints[i].Position);
-                        }
+                        distance = Vector2.Distance(wayPoints[i].Position, wayPoints[indexTaken[^1]].Position);
+                        nextIndex = i;
                     }
                 }
 
-                if (index == -1)
-                {
+                if (nextIndex <= -1)
+                    break;
+                
+                indexTaken.Add(nextIndex);
+                tempo++;
+            }
+            if (tempo >= 100)
+                Debug.LogError("Optimal Trajectory 'While' error");
 
+            if (indexTaken.Count <= 1)
+            {
+                foreach (int index in indexTaken)
+                {
+                    trajectory.Add(wayPoints[index].Position);
                 }
             }
-
-            // TEMPO
-            trajectory.Clear();
-            trajectory.Add(wayPoints[closest].Position);
+            else
+            {
+                for (int i = 0; i < indexTaken.Count; i++)
+                {
+                    if (i == 0)
+                    {
+                        float distance = Vector2.Distance(a_spaceShip.Position, wayPoints[indexTaken[i]].Position) + 
+                                         Vector2.Distance(wayPoints[indexTaken[i]].Position, wayPoints[indexTaken[i + 1]].Position);
+                        float progress = Vector2.Distance(a_spaceShip.Position, wayPoints[indexTaken[i]].Position) / distance;
+                        
+                        Vector2 lerpPos = Vector2.Lerp(a_spaceShip.Position, wayPoints[indexTaken[i + 1]].Position, progress);
+                        Vector2 dirVector = (lerpPos - wayPoints[indexTaken[i]].Position).normalized;
+                        
+                        trajectory.Add(wayPoints[indexTaken[i]].Position + (dirVector * wayPoints[indexTaken[i]].Radius));
+                    }
+                    else if (i == indexTaken.Count - 1)
+                    {
+                        trajectory.Add(wayPoints[indexTaken[i]].Position);
+                    }
+                    else
+                    {
+                        float distance = Vector2.Distance(trajectory[i - 1], wayPoints[indexTaken[i]].Position) + 
+                                         Vector2.Distance(wayPoints[indexTaken[i]].Position, wayPoints[indexTaken[i + 1]].Position);
+                        float progress = Vector2.Distance(trajectory[i - 1], wayPoints[indexTaken[i]].Position) / distance;
+                        
+                        Vector2 lerpPos = Vector2.Lerp(trajectory[i - 1], wayPoints[indexTaken[i + 1]].Position, progress);
+                        Vector2 dirVector = (lerpPos - wayPoints[indexTaken[i]].Position).normalized;
+                        
+                        trajectory.Add(wayPoints[indexTaken[i]].Position + (dirVector * wayPoints[indexTaken[i]].Radius));
+                    }
+                }
+            }
+            
             return trajectory;
         }
     }
