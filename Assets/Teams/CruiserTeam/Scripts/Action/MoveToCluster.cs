@@ -68,7 +68,7 @@ namespace Cruiser
             foreach (WayPointCluster cluster in clusters)
             {
                 float currentDistance = Vector2.Distance(cluster.averagePos, CruiserController.Instance.SpaceShipView.Position);
-                if (minDistance > currentDistance)
+                if (minDistance > currentDistance && cluster.nbCapturablePoints(CruiserController.Instance.SpaceShipView.Owner) > 0)
                 {
                     minDistance = currentDistance;
                     closerCluster = cluster;
@@ -103,7 +103,6 @@ namespace Cruiser
 
         float ComputeThurst(SpaceShipView spaceship, Vector2 target)
         {
-
             float angle = Vector2.Angle(spaceship.LookAt, target - spaceship.Position);
             return thrustAnglePower.Evaluate(angle);
         }
