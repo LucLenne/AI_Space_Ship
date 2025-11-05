@@ -18,6 +18,8 @@ namespace CruiserTeam
         private SpaceShipView _spaceShipView;
         public static CruiserController Instance;
 
+        public InputData inputData;
+
         public SpaceShipView SpaceShipView { get => _spaceShipView; private set => _spaceShipView = value; }
         public GameData GameData { get => _gameData; private set => _gameData = value; }
         public List<WayPointCluster> Clusters { get => _clusters; set => _clusters = value; }
@@ -61,27 +63,10 @@ namespace CruiserTeam
             GameData = data;
             SpaceShipView = spaceship;
             SpaceShipView otherSpaceship = data.GetSpaceShipForOwner(1 - spaceship.Owner);
-            float thrust = 1.0f;
-            float targetOrient = AimingHelpers.ComputeSteeringOrient(spaceship, Target(data, spaceship));
+            //AimingHelpers.ComputeSteeringOrient(spaceship, Target(data, spaceship));
 
             bool needShoot = AimingHelpers.CanHit(spaceship, otherSpaceship.Position, otherSpaceship.Velocity, 0.15f);
-            return new InputData(thrust, targetOrient, needShoot, false, false);
-        }
-
-        Vector2 Target(GameData data, SpaceShipView spaceship)
-        {
-            int index = 0;
-            float closerWayPoint = Mathf.Infinity;
-            for (int i = 0; i < data.WayPoints.Count; i++)
-            {
-                float actualDistance = Vector2.Distance(spaceship.Position, data.WayPoints[i].Position);
-                if (actualDistance < closerWayPoint && data.WayPoints[i].Owner != spaceship.Owner)
-                {
-                    closerWayPoint = actualDistance;
-                    index = i;
-                }
-            }
-            return data.WayPoints[index].Position;
+            return inputData;
         }
     }
 }

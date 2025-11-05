@@ -1,8 +1,6 @@
-using System;
-using UnityEngine;
-using System.Collections.Generic;
-using System.Numerics;
 using DoNotModify;
+using System.Collections.Generic;
+using UnityEngine;
 using Random = UnityEngine.Random;
 using Vector2 = UnityEngine.Vector2;
 using Vector3 = UnityEngine.Vector3;
@@ -29,13 +27,13 @@ namespace CruiserTeam
                 {
                     average += current.Position;
                 }
-        
+
                 _averagePos = average / wayPoints.Count;
                 centerDistance = _averagePos.magnitude;
                 weight = 0;
             }
         }
-        
+
         public List<WayPointView> wayPoints;
 
         public float weight;
@@ -45,17 +43,18 @@ namespace CruiserTeam
         {
             get
             {
-                if (averagePos == null)
-                    return Vector2.zero;
-                else
-                    return _averagePos;
+                return _averagePos;
+            }
+            private set
+            {
+                _averagePos = value;
             }
         }
 
         public List<Vector2> OptimalTrajectory(SpaceShipView a_spaceShip)
         {
             List<Vector2> trajectory = new List<Vector2>();
-            
+
             if (wayPoints == null || wayPoints.Count <= 0)
                 return trajectory;
             else if (wayPoints.Count == 1)
@@ -69,16 +68,17 @@ namespace CruiserTeam
             {
                 if (Vector2.Distance(wayPoints[i].Position, a_spaceShip.Position) < Vector2.Distance(wayPoints[closest].Position, a_spaceShip.Position))
                     closest = i;
-            };
-            
+            }
+            ;
+
             List<int> indexTaken = new List<int>();
             indexTaken.Add(closest);
-            
+
             for (int i = 0; i < wayPoints.Count; i++)
             {
                 int index = -1;
                 float distanceMin = Mathf.Infinity;
-                
+
                 for (int j = 0; j < wayPoints.Count; j++)
                 {
                     if (!(indexTaken.Contains(j) || j == i))
@@ -93,25 +93,25 @@ namespace CruiserTeam
 
                 if (index == -1)
                 {
-                    
+
                 }
             }
-            
+
             // TEMPO
             trajectory.Clear();
             trajectory.Add(wayPoints[closest].Position);
             return trajectory;
         }
     }
-    
+
     public class ClusterBinaryTree
     {
         public ClusterBinaryTree left = null;
         public ClusterBinaryTree right = null;
-            
+
         public List<WayPointView> wayPoints = new List<WayPointView>();
     }
-    
+
     public class Clustering : MonoBehaviour
     {
         private enum Direction
@@ -121,14 +121,14 @@ namespace CruiserTeam
             DownLeft,
             UpRight,
             DownRight
-        }   
-        
+        }
+
         [Tooltip("The radius of centered cluster in units.")]
         [SerializeField] private float _centerRadius;
         [Tooltip("Limit of Waypoints per Cluster.")]
         [SerializeField] private int _limitOfWaypoints = 2;
-        
-        
+
+
         [Space(10)]
         [SerializeField] private bool _ShowClusterDebug;
         [SerializeField] private List<WayPointCluster> _DebugClusterList = new List<WayPointCluster>();
@@ -154,26 +154,26 @@ namespace CruiserTeam
 
             // Clustering Waypoints in each Binary trees
             List<List<WayPointView>> clustersWayPoints = new List<List<WayPointView>>();
-            
+
             for (int i = 0; i < binaryTrees.Count; i++)
             {
                 binaryTrees[i] = ClusteringPointsInNode(binaryTrees[i]);
                 RecoverBinaryNode(binaryTrees[i], ref clustersWayPoints);
             }
-            
+
             // Reallocate every Cluster of type List<WayPointView> as type WayPointCluster, to be returned
             List<WayPointCluster> clusterList = new List<WayPointCluster>();
             for (int i = 0; i < clustersWayPoints.Count; i++)
             {
                 clusterList.Add(new WayPointCluster(clustersWayPoints[i]));
             }
-            
+
             _DebugClusterList = clusterList;
-            
+
             _endClustering = true;
             return clusterList;
         }
-        
+
         /// <summary>
         /// Recovers each and every sorted nodes as Clusters
         /// </summary>
@@ -183,12 +183,12 @@ namespace CruiserTeam
             {
                 if (node.wayPoints != null && node.wayPoints.Count > 0)
                     a_result.Add(node.wayPoints);
-                
+
                 RecoverBinaryNode(node.left, ref a_result);
                 RecoverBinaryNode(node.right, ref a_result);
             }
         }
-        
+
         /// <summary>
         /// Get point depending on which zone it is situated on
         /// </summary>
@@ -196,10 +196,10 @@ namespace CruiserTeam
         private ClusterBinaryTree GetPointInZone(Direction a_dir, List<WayPointView> a_data)
         {
             ClusterBinaryTree node = new ClusterBinaryTree();
-            
+
             switch (a_dir)
             {
-                case Direction.Center :
+                case Direction.Center:
                     foreach (WayPointView current in a_data)
                     {
                         if (current.Position.magnitude <= _centerRadius)
@@ -262,11 +262,11 @@ namespace CruiserTeam
             // Is there less point than the limit
             if (a_node.wayPoints.Count <= _limitOfWaypoints)
                 return;
-            
+
             // Create Branches
             a_node.right = new ClusterBinaryTree();
             a_node.left = new ClusterBinaryTree();
-            
+
             // Check the center of attraction of all points
             Vector2 weightCenter = Vector2.zero;
             foreach (WayPointView current in a_node.wayPoints)
@@ -274,28 +274,28 @@ namespace CruiserTeam
                 weightCenter += current.Position;
             }
             weightCenter = weightCenter / a_node.wayPoints.Count;
-            
+
             // // Check the furthest point from the center of attraction
             Vector2 furthestPoint = weightCenter; // SHOULD ALWAYS BE EQUAL TO A POINT
-             for (int i = 1; i < a_node.wayPoints.Count; i++)
-             {
-                 if ((a_node.wayPoints[i].Position - weightCenter).magnitude >= (furthestPoint - weightCenter).magnitude)
-                     furthestPoint = a_node.wayPoints[i].Position;
-             }
-            
+            for (int i = 1; i < a_node.wayPoints.Count; i++)
+            {
+                if ((a_node.wayPoints[i].Position - weightCenter).magnitude >= (furthestPoint - weightCenter).magnitude)
+                    furthestPoint = a_node.wayPoints[i].Position;
+            }
+
             // Check every point depending if there are closer to the center of attraction or further
             foreach (WayPointView current in a_node.wayPoints)
             {
                 float distanceA = Vector2.Distance(current.Position, weightCenter);
                 float distanceB = Vector2.Distance(current.Position, furthestPoint);
-                
+
                 if (distanceA < distanceB)
                     a_node.right.wayPoints.Add(current);
                 else
                     a_node.left.wayPoints.Add(current);
             }
-            
-            
+
+
             // Clear info on this node and checking lower nodes
             a_node.wayPoints.Clear();
             ClusteringPointsInNode(ref a_node.right);
@@ -309,17 +309,17 @@ namespace CruiserTeam
             {
                 if (_clusterColors == null)
                     _clusterColors = new List<Color>();
-                
+
                 for (int i = _clusterColors.Count; i < _DebugClusterList.Count; i++)
                 {
                     _clusterColors.Add(new Color(Random.value, Random.value, Random.value, 0.7f));
                 }
             }
-            
+
             if (_ShowClusterDebug)
             {
                 Gizmos.color = Color.yellow;
-                
+
                 Gizmos.DrawLine(new Vector3(_centerRadius, 0, -1), new Vector3(100, 0, -1));
                 Gizmos.DrawLine(new Vector3(-_centerRadius, 0, -1), new Vector3(-100, 0, -1));
                 Gizmos.DrawLine(new Vector3(0, _centerRadius, -1), new Vector3(0, 100, -1));
@@ -336,7 +336,7 @@ namespace CruiserTeam
                     }
                 }
             }
-            
+
         }
         #endregion
     }
