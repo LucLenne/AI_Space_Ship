@@ -52,10 +52,10 @@ namespace CruiserTeam
             }
         }
 
-        public List<Vector2> OptimalTrajectory(SpaceShipView a_spaceShip)
-        {
-            
-        }
+        // public List<Vector2> OptimalTrajectory(SpaceShipView a_spaceShip)
+        // {
+        //     
+        // }
     }
     
     public class ClusterBinaryTree
