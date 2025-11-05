@@ -52,10 +52,56 @@ namespace CruiserTeam
             }
         }
 
-        // public List<Vector2> OptimalTrajectory(SpaceShipView a_spaceShip)
-        // {
-        //     
-        // }
+        public List<Vector2> OptimalTrajectory(SpaceShipView a_spaceShip)
+        {
+            List<Vector2> trajectory = new List<Vector2>();
+            
+            if (wayPoints == null || wayPoints.Count <= 0)
+                return trajectory;
+            else if (wayPoints.Count == 1)
+            {
+                trajectory.Add(wayPoints[0].Position - (wayPoints[0].Radius * (a_spaceShip.Position - wayPoints[0].Position).normalized));
+                return trajectory;
+            }
+
+            int closest = 0;
+            for (int i = 1; i < wayPoints.Count; i++)
+            {
+                if (Vector2.Distance(wayPoints[i].Position, a_spaceShip.Position) < Vector2.Distance(wayPoints[closest].Position, a_spaceShip.Position))
+                    closest = i;
+            };
+            
+            List<int> indexTaken = new List<int>();
+            indexTaken.Add(closest);
+            
+            for (int i = 0; i < wayPoints.Count; i++)
+            {
+                int index = -1;
+                float distanceMin = Mathf.Infinity;
+                
+                for (int j = 0; j < wayPoints.Count; j++)
+                {
+                    if (!(indexTaken.Contains(j) || j == i))
+                    {
+                        if (Vector2.Distance(wayPoints[j].Position, wayPoints[i].Position) < distanceMin)
+                        {
+                            index = j;
+                            distanceMin = Vector2.Distance(wayPoints[j].Position, wayPoints[i].Position);
+                        }
+                    }
+                }
+
+                if (index == -1)
+                {
+                    
+                }
+            }
+            
+            // TEMPO
+            trajectory.Clear();
+            trajectory.Add(wayPoints[closest].Position);
+            return trajectory;
+        }
     }
     
     public class ClusterBinaryTree
