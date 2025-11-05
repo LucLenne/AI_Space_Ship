@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using BehaviorDesigner.Runtime;
 using DoNotModify;
 using UnityEngine;
@@ -53,16 +54,17 @@ namespace CruiserTeam
         {
             int index = 0;
             float closerWayPoint = Mathf.Infinity;
-            for (int i = 0; i < data.WayPoints.Count; i++)
+            for (int i = 0; i <_clusters.Count; i++)
             {
-                float actualDistance = Vector2.Distance(spaceship.Position, data.WayPoints[i].Position);
-                if (actualDistance < closerWayPoint && data.WayPoints[i].Owner != spaceship.Owner)
+                float actualDistance = Vector2.Distance(spaceship.Position, _clusters[i].averagePos);
+                if (actualDistance < closerWayPoint && _clusters[i].nbCapturablePoints(spaceship.Owner) > 0)
                 {
                     closerWayPoint = actualDistance;
                     index = i;
                 }
             }
-            return data.WayPoints[index].Position;
+            
+            return _clusters[index].OptimalTrajectory(spaceship)[0];
         }
     }
 }
