@@ -8,17 +8,32 @@ namespace CruiserTeam
     public class CruiserController : BaseSpaceShipController
     {
         [SerializeField] private BehaviorTree tree;
-            
+        [SerializeField] private Clustering clusteringTool;
+        
+        [Space(10)]
         [SerializeField] private List<WayPointCluster> _clusters;
+
+        private bool _passInit = false;
         
         public override void Initialize(SpaceShipView spaceship, GameData data)
         {
-            if (tree == null && !TryGetComponent<BehaviorTree>(out tree))
+            // Verification before Initialization
+            #region Verification
+            if (tree == null || !TryGetComponent<BehaviorTree>(out tree))
             {
-                Debug.LogError($"No BehaviorTree found", gameObject);
+                Debug.LogError($"No BehaviorTree Component found", gameObject);
+                return;
+            }
+            if (clusteringTool == null || !TryGetComponent<Clustering>(out clusteringTool))
+            {
+                Debug.LogError($"No Clustering Component found", gameObject);
                 return;
             }
             
+            _passInit = true;
+            #endregion
+
+            _clusters = clusteringTool.InitializeClustering(data);
         }
 
         public override InputData UpdateInput(SpaceShipView spaceship, GameData data)
@@ -28,7 +43,9 @@ namespace CruiserTeam
             float targetOrient = AimingHelpers.ComputeSteeringOrient(spaceship, Target(data, spaceship));
 
             bool needShoot = AimingHelpers.CanHit(spaceship, otherSpaceship.Position, otherSpaceship.Velocity, 0.15f);
-            Debug.Log(targetOrient);
+
+            //Debug.Log(targetOrient);
+            
             return new InputData(thrust, targetOrient, needShoot, false, false);
         }
 

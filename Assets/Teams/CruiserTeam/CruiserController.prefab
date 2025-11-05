@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 995883328052245445}
   - component: {fileID: 8266579805844557654}
+  - component: {fileID: 117832542599978314}
   - component: {fileID: 3039252958360588374}
   m_Layer: 0
   m_Name: CruiserController
@@ -45,16 +46,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8736dc92ea38e5248b8510a4c5093098, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _speed:
-    mIsShared: 0
-    mIsGlobal: 0
-    mIsDynamic: 0
-    mName: 
-    mToolTip: 
-    mPropertyMapping: 
-    mPropertyMappingOwner: {fileID: 0}
-    mValue: 100
   tree: {fileID: 3039252958360588374}
+  clusteringTool: {fileID: 117832542599978314}
+  _clusters: []
+--- !u!114 &117832542599978314
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7672329417856911656}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 397e270204dd7bd4a87b823a304447bb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _centerRadius: 2.5
+  _limitOfWaypoints: 3
+  _ShowClusterDebug: 1
+  _DebugClusterList: []
+  _clusterColors: []
 --- !u!114 &3039252958360588374
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -96,5 +107,5 @@ MonoBehaviour:
         byteData: 
         byteDataArray: 
       Version: 1.7.12
-  gizmoViewMode: 2
-  showBehaviorDesignerGizmo: 1
+  gizmoViewMode: 0
+  showBehaviorDesignerGizmo: 0
