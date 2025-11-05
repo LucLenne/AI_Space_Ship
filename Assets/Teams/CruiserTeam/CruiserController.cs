@@ -66,14 +66,14 @@ namespace CruiserTeam
             //AimingHelpers.ComputeSteeringOrient(spaceship, Target(data, spaceship));
 
             bool needShoot = AimingHelpers.CanHit(spaceship, otherSpaceship.Position, otherSpaceship.Velocity, 0.15f);
-            return new InputData(thrust, targetOrient, needShoot, false, false);
+            return inputData;
         }
 
         Vector2 Target(GameData data, SpaceShipView spaceship)
         {
             int index = 0;
             float closerWayPoint = Mathf.Infinity;
-            for (int i = 0; i <_clusters.Count; i++)
+            for (int i = 0; i < _clusters.Count; i++)
             {
                 float actualDistance = Vector2.Distance(spaceship.Position, _clusters[i].averagePos);
                 if (actualDistance < closerWayPoint && _clusters[i].nbCapturablePoints(spaceship.Owner) > 0)
@@ -82,7 +82,7 @@ namespace CruiserTeam
                     index = i;
                 }
             }
-            
+
             return _clusters[index].OptimalTrajectory(spaceship)[0];
         }
     }
