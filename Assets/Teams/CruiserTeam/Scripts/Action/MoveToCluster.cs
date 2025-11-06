@@ -11,9 +11,11 @@ namespace Cruiser
     public class MoveToCluster : Action
     {
         public AnimationCurve thrustAnglePower;
-        public bool wipedMovement;
         private Coroutine followRoutine;
         private List<TargetPath> path;
+        public Shared
+
+
         public override void OnStart()
         {
             followRoutine = StartCoroutine(FollowPath());
@@ -21,9 +23,6 @@ namespace Cruiser
 
         public override TaskStatus OnUpdate()
         {
-            if (wipedMovement)
-                return TaskStatus.Failure;
-
             if (followRoutine != null)
             {
                 return TaskStatus.Running;
@@ -101,7 +100,7 @@ namespace Cruiser
                 }
 
 
-                float targetPos = AimingHelpers.ComputeSteeringOrient(spaceship, target);
+                float targetPos = AimingHelpers.ComputeSteeringOrient(spaceship, target, 1.0f);
                 float thrust = ComputeThurst(spaceship, target);
 
                 CruiserController.Instance.inputData =
