@@ -13,7 +13,6 @@ namespace Cruiser
         public AnimationCurve thrustAnglePower;
         private Coroutine followRoutine;
         private List<TargetPath> path;
-        public Shared
 
 
         public override void OnStart()
