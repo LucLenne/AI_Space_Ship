@@ -69,7 +69,7 @@ namespace CruiserTeam
             return inputData;
         }
 
-        Vector2 Target(GameData data, SpaceShipView spaceship)
+        /*Vector2 Target(GameData data, SpaceShipView spaceship)
         {
             int index = 0;
             float closerWayPoint = Mathf.Infinity;
@@ -84,6 +84,6 @@ namespace CruiserTeam
             }
 
             return _clusters[index].OptimalTrajectory(spaceship)[0];
-        }
+        }*/
     }
 }

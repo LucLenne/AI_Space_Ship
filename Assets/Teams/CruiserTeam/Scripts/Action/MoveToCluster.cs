@@ -7,17 +7,13 @@ using UnityEngine;
 
 namespace Cruiser
 {
-    public struct TargetPath
-    {
-        public Vector2 position;
-        public WayPointView wayPoint;
-    }
     [TaskCategory("CruiserTeam")]
     public class MoveToCluster : Action
     {
         public AnimationCurve thrustAnglePower;
+        public bool wipedMovement;
         private Coroutine followRoutine;
-
+        private List<TargetPath> path;
         public override void OnStart()
         {
             followRoutine = StartCoroutine(FollowPath());
@@ -25,6 +21,9 @@ namespace Cruiser
 
         public override TaskStatus OnUpdate()
         {
+            if (wipedMovement)
+                return TaskStatus.Failure;
+
             if (followRoutine != null)
             {
                 return TaskStatus.Running;
@@ -33,13 +32,15 @@ namespace Cruiser
             {
                 return TaskStatus.Success;
             }
+
+
         }
         IEnumerator FollowPath()
         {
             //Init Value
             GameData data = CruiserController.Instance.GameData;
             SpaceShipView spaceship = CruiserController.Instance.SpaceShipView;
-            List<TargetPath> path = BestCluster().OptimalTrajectory(spaceship);
+            path = BestCluster().OptimalTrajectory(spaceship);
             for (int i = 0; i < path.Count; i++)
             {
                 TargetPath currentTarget = path[i];
@@ -59,7 +60,7 @@ namespace Cruiser
                 }
                 while (changed);
 
-                yield return StartCoroutine(MoveTo(currentTarget, spaceship, data));
+                yield return StartCoroutine(MoveTo(i, spaceship, data));
             }
             followRoutine = null;
             yield break;
@@ -82,21 +83,34 @@ namespace Cruiser
             return closerCluster;
         }
 
-        IEnumerator MoveTo(TargetPath target, SpaceShipView spaceship, GameData data)
+        IEnumerator MoveTo(int indexTargetPath, SpaceShipView spaceship, GameData data)
         {
             bool hasReached = false;
             float radius = spaceship.Radius;
 
             while (!hasReached)
             {
-                float targetPos = AimingHelpers.ComputeSteeringOrient(spaceship, target.position);
-                float thrust = ComputeThurst(spaceship, target.position);
+                Vector2 target;
+                if (indexTargetPath < path.Count - 1 && Vector2.Distance(path[indexTargetPath].position, spaceship.Position) <= 0.5f)
+                {
+                    target = path[indexTargetPath + 1].position;
+                }
+                else
+                {
+                    target = path[indexTargetPath].position;
+                }
+
+
+                float targetPos = AimingHelpers.ComputeSteeringOrient(spaceship, target);
+                float thrust = ComputeThurst(spaceship, target);
 
                 CruiserController.Instance.inputData =
                     new InputData(thrust, targetPos, false, false, false);
 
+
+
                 // Détection : si le vaisseau est passé dans le cercle
-                if (target.wayPoint.Owner == spaceship.Owner)
+                if (path[indexTargetPath].wayPoint.Owner == spaceship.Owner)
                     hasReached = true;
 
                 yield return null;
@@ -125,7 +139,7 @@ namespace Cruiser
         Vector2 AvoidAsteroid(AsteroidView asteroid, SpaceShipView spaceship, Vector2 target)
         {
             Vector2 toAst = asteroid.Position - spaceship.Position;
-            float avoidRadius = spaceship.Radius + asteroid.Radius;
+            float avoidRadius = spaceship.Radius * 1.5f + asteroid.Radius;
 
             // Distance actuelle
             float d = toAst.magnitude;
