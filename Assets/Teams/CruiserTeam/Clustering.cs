@@ -7,6 +7,23 @@ using Vector3 = UnityEngine.Vector3;
 
 namespace CruiserTeam
 {
+    public struct TargetPath
+    {
+        public TargetPath(Vector2 a_target, WayPointView a_wayPoint)
+        {
+            position = a_target;
+            wayPoint = a_wayPoint;
+        }
+        public TargetPath(WayPointView a_wayPoint)
+        {
+            wayPoint = a_wayPoint;
+            position = wayPoint.Position;
+        }
+        
+        public Vector2 position;
+        public WayPointView wayPoint;
+    }
+    
     [System.Serializable]
     public struct WayPointCluster
     {
@@ -69,15 +86,15 @@ namespace CruiserTeam
         /// </summary>
         /// <param name="a_spaceShip"></param>
         /// <returns>List of points to go to</returns>
-        public List<Vector2> OptimalTrajectory(SpaceShipView a_spaceShip)
+        public List<TargetPath> OptimalTrajectory(SpaceShipView a_spaceShip)
         {
-            List<Vector2> trajectory = new List<Vector2>();
+            List<TargetPath> trajectory = new List<TargetPath>();
 
             if (wayPoints == null || wayPoints.Count <= 0)
                 return trajectory;
             else if (wayPoints.Count == 1)
             {
-                trajectory.Add(wayPoints[0].Position - (wayPoints[0].Radius * (a_spaceShip.Position - wayPoints[0].Position).normalized));
+                trajectory.Add(new TargetPath(wayPoints[0]));
                 return trajectory;
             }
 
@@ -122,7 +139,7 @@ namespace CruiserTeam
             {
                 foreach (int index in indexTaken)
                 {
-                    trajectory.Add(wayPoints[index].Position);
+                    trajectory.Add(new TargetPath(wayPoints[index]));
                 }
             }
             else
@@ -138,22 +155,22 @@ namespace CruiserTeam
                         Vector2 lerpPos = Vector2.Lerp(a_spaceShip.Position, wayPoints[indexTaken[i + 1]].Position, progress);
                         Vector2 dirVector = (lerpPos - wayPoints[indexTaken[i]].Position).normalized;
                         
-                        trajectory.Add(wayPoints[indexTaken[i]].Position + (dirVector * wayPoints[indexTaken[i]].Radius));
+                        trajectory.Add(new TargetPath(wayPoints[indexTaken[i]].Position + (dirVector * wayPoints[indexTaken[i]].Radius), wayPoints[indexTaken[i]]));
                     }
                     else if (i == indexTaken.Count - 1)
                     {
-                        trajectory.Add(wayPoints[indexTaken[i]].Position);
+                        trajectory.Add(new TargetPath(wayPoints[indexTaken[i]]));
                     }
                     else
                     {
-                        float distance = Vector2.Distance(trajectory[i - 1], wayPoints[indexTaken[i]].Position) + 
+                        float distance = Vector2.Distance(trajectory[i - 1].position, wayPoints[indexTaken[i]].Position) + 
                                          Vector2.Distance(wayPoints[indexTaken[i]].Position, wayPoints[indexTaken[i + 1]].Position);
-                        float progress = Vector2.Distance(trajectory[i - 1], wayPoints[indexTaken[i]].Position) / distance;
+                        float progress = Vector2.Distance(trajectory[i - 1].position, wayPoints[indexTaken[i]].Position) / distance;
                         
-                        Vector2 lerpPos = Vector2.Lerp(trajectory[i - 1], wayPoints[indexTaken[i + 1]].Position, progress);
+                        Vector2 lerpPos = Vector2.Lerp(trajectory[i - 1].position, wayPoints[indexTaken[i + 1]].Position, progress);
                         Vector2 dirVector = (lerpPos - wayPoints[indexTaken[i]].Position).normalized;
                         
-                        trajectory.Add(wayPoints[indexTaken[i]].Position + (dirVector * wayPoints[indexTaken[i]].Radius));
+                        trajectory.Add(new TargetPath(wayPoints[indexTaken[i]].Position + (dirVector * wayPoints[indexTaken[i]].Radius), wayPoints[indexTaken[i]]));
                     }
                 }
             }
