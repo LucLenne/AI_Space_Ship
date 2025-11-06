@@ -1,9 +1,9 @@
+using BehaviorDesigner.Runtime;
 using BehaviorDesigner.Runtime.Tasks;
 using CruiserTeam;
 using DoNotModify;
 using System.Collections;
 using System.Collections.Generic;
-using BehaviorDesigner.Runtime;
 using UnityEngine;
 
 namespace Cruiser
@@ -14,7 +14,8 @@ namespace Cruiser
         public AnimationCurve thrustAnglePower;
         private Coroutine followRoutine;
         private List<TargetPath> path;
-        
+        private bool laydownMine = false;
+
         [BehaviorDesigner.Runtime.Tasks.Tooltip("The distance before the Spaceship ignores the current target (gives smoother trajectory, 0.5 by default).")]
         public SharedFloat ignoreTargetRadius = 0.5f;
         [BehaviorDesigner.Runtime.Tasks.Tooltip("The overshoot angle at which the spaceship will turn when a target is given (1.2 by default).")]
@@ -29,7 +30,7 @@ namespace Cruiser
         public override TaskStatus OnUpdate()
         {
             Debug.Log("Move Mod");
-            
+
             if (followRoutine != null)
             {
                 return TaskStatus.Running;
@@ -38,8 +39,6 @@ namespace Cruiser
             {
                 return TaskStatus.Success;
             }
-
-
         }
         IEnumerator FollowPath()
         {
@@ -50,22 +49,6 @@ namespace Cruiser
             for (int i = 0; i < path.Count; i++)
             {
                 TargetPath currentTarget = path[i];
-
-                bool changed;
-                do
-                {
-                    changed = false;
-                    foreach (AsteroidView asteroid in data.Asteroids)
-                    {
-                        if (SegmentCircleIntersection(spaceship.Position, currentTarget.position, asteroid.Position, asteroid.Radius))
-                        {
-                            currentTarget.position = AvoidAsteroid(asteroid, spaceship, currentTarget.position);
-                            changed = true;
-                        }
-                    }
-                }
-                while (changed);
-
                 yield return StartCoroutine(MoveTo(i, spaceship, data));
             }
             followRoutine = null;
@@ -111,69 +94,28 @@ namespace Cruiser
                 float thrust = ComputeThurst(spaceship, target);
 
                 CruiserController.Instance.inputData =
-                    new InputData(thrust, targetPos, false, false, false);
+                    new InputData(thrust, targetPos, false, laydownMine, false);
 
+                if (laydownMine)
+                    laydownMine = false;
 
-
-                // D�tection : si le vaisseau est pass� dans le cercle
+                // Detection : si le vaisseau est passe dans le cercle
                 if (path[indexTargetPath].wayPoint.Owner == spaceship.Owner)
+                {
                     hasReached = true;
-
-                yield return null;
+                    if (indexTargetPath == path.Count - 1 || indexTargetPath == 0)
+                    {
+                        laydownMine = true;
+                    }
+                }
+                yield break;
             }
 
-            // on quitte la coroutine
-            yield break;
-        }
-
-        float ComputeThurst(SpaceShipView spaceship, Vector2 target)
-        {
-            float angle = Vector2.Angle(spaceship.LookAt, target - spaceship.Position);
-            return thrustAnglePower.Evaluate(angle);
-        }
-
-        bool SegmentCircleIntersection(Vector2 A, Vector2 B, Vector2 C, float R)
-        {
-            Vector2 AB = B - A;
-            float t = Vector2.Dot(C - A, AB) / Vector2.Dot(AB, AB);
-            t = Mathf.Clamp01(t);
-            Vector2 closest = A + t * AB;
-
-            return (closest - C).sqrMagnitude <= R * R;
-        }
-
-        Vector2 AvoidAsteroid(AsteroidView asteroid, SpaceShipView spaceship, Vector2 target)
-        {
-            Vector2 toAst = asteroid.Position - spaceship.Position;
-            float avoidRadius = spaceship.Radius * 1.5f + asteroid.Radius;
-
-            // Distance actuelle
-            float d = toAst.magnitude;
-
-            // Si d�j� trop proche : esquive d�urgence
-            if (d < avoidRadius * 1.2f)
+            float ComputeThurst(SpaceShipView spaceship, Vector2 target)
             {
-                Vector2 escapeDir = (spaceship.Position - asteroid.Position).normalized;
-                return spaceship.Position + escapeDir * avoidRadius * 2f;
+                float angle = Vector2.Angle(spaceship.LookAt, target - spaceship.Position);
+                return thrustAnglePower.Evaluate(angle);
             }
-
-            // Angle tangent
-            float angleOffset = Mathf.Acos(avoidRadius / d);
-
-            // Direction g�n�rale
-            float baseAngle = Mathf.Atan2(toAst.y, toAst.x);
-
-            // Deux options
-            Vector2 p1 = asteroid.Position + new Vector2(
-                Mathf.Cos(baseAngle + angleOffset),
-                Mathf.Sin(baseAngle + angleOffset)) * avoidRadius * 1.2f;
-
-            Vector2 p2 = asteroid.Position + new Vector2(
-                Mathf.Cos(baseAngle - angleOffset),
-                Mathf.Sin(baseAngle - angleOffset)) * avoidRadius * 1.2f;
-
-            // Choisir celui qui va le plus vers la target
-            return Vector2.Distance(p1, target) < Vector2.Distance(p2, target) ? p1 : p2;
         }
     }
 }
