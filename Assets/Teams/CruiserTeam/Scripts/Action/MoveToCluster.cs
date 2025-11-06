@@ -52,7 +52,7 @@ namespace Cruiser
                 yield return StartCoroutine(MoveTo(i, spaceship, data));
             }
             followRoutine = null;
-            yield break;
+            yield return null;
         }
 
         WayPointCluster BestCluster()
@@ -75,47 +75,43 @@ namespace Cruiser
         IEnumerator MoveTo(int indexTargetPath, SpaceShipView spaceship, GameData data)
         {
             bool hasReached = false;
-            float radius = spaceship.Radius;
 
             while (!hasReached)
             {
-                Vector2 target;
-                if (indexTargetPath < path.Count - 1 && Vector2.Distance(path[indexTargetPath].position, spaceship.Position) <= ignoreTargetRadius.Value)
+                Vector2 currentTarget = path[indexTargetPath].position;
+
+                // Passage au prochain waypoint
+                if (indexTargetPath < path.Count - 1 &&
+                    Vector2.Distance(currentTarget, spaceship.Position) <= ignoreTargetRadius.Value)
                 {
-                    target = path[indexTargetPath + 1].position;
-                }
-                else
-                {
-                    target = path[indexTargetPath].position;
+                    currentTarget = path[indexTargetPath + 1].position;
                 }
 
+                float targetOrient = AimingHelpers.ComputeSteeringOrient(spaceship, currentTarget, aimingHelperOvershoot.Value);
+                float thrust = ComputeThurst(spaceship, currentTarget);
 
-                float targetPos = AimingHelpers.ComputeSteeringOrient(spaceship, target, aimingHelperOvershoot.Value);
-                float thrust = ComputeThurst(spaceship, target);
-
-                CruiserController.Instance.inputData =
-                    new InputData(thrust, targetPos, false, laydownMine, false);
-
-                if (laydownMine)
-                    laydownMine = false;
-
-                // Detection : si le vaisseau est passe dans le cercle
-                if (path[indexTargetPath].wayPoint.Owner == spaceship.Owner)
+                bool shouldLayMine = false;
+                if (Vector2.Distance(spaceship.Position, path[indexTargetPath].position) <= ignoreTargetRadius.Value)
                 {
                     hasReached = true;
-                    if (indexTargetPath == path.Count - 1 || indexTargetPath == 0)
+                    if (spaceship.Energy >= 99.9f)
                     {
-                        laydownMine = true;
+                        if (indexTargetPath == 0 || indexTargetPath == path.Count - 1)
+                            shouldLayMine = true;
                     }
                 }
-                yield break;
-            }
 
-            float ComputeThurst(SpaceShipView spaceship, Vector2 target)
-            {
-                float angle = Vector2.Angle(spaceship.LookAt, target - spaceship.Position);
-                return thrustAnglePower.Evaluate(angle);
+                CruiserController.Instance.inputData =
+                    new InputData(thrust, targetOrient, false, shouldLayMine, false);
+
+                yield return null;
             }
+        }
+
+        float ComputeThurst(SpaceShipView spaceship, Vector2 target)
+        {
+            float angle = Vector2.Angle(spaceship.LookAt, target - spaceship.Position);
+            return thrustAnglePower.Evaluate(angle);
         }
     }
 }
