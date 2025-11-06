@@ -12,6 +12,11 @@ namespace CruiserTeam
 
         [Space(10)]
         [SerializeField] private List<WayPointCluster> _clusters;
+        
+        [Space(10)]
+        [SerializeField] private float _whiskersLenght = 1f;
+        [SerializeField] private List<float> _whiskersRadius = new List<float>();
+        private List<Vector2> _whiskersVectors = new List<Vector2>();
 
         private bool _passInit = false;
         private GameData _gameData;
@@ -71,6 +76,9 @@ namespace CruiserTeam
             #endregion
 
             _clusters = clusteringTool.InitializeClustering(data);
+            
+            _whiskersRadius.Sort();
+            _whiskersRadius.Reverse();
         }
 
         public override InputData UpdateInput(SpaceShipView spaceship, GameData data)
@@ -78,13 +86,56 @@ namespace CruiserTeam
             GameData = data;
             SpaceShipView = spaceship;
             SpaceShipView otherSpaceship = data.GetSpaceShipForOwner(1 - spaceship.Owner);
-            //AimingHelpers.ComputeSteeringOrient(spaceship, Target(data, spaceship));
+            
+            Whisky(ref inputData.targetOrientation);
 
-            //bool needShoot = AimingHelpers.CanHit(spaceship, otherSpaceship.Position, otherSpaceship.Velocity, 0.15f);
+            if (Vector2.Distance(SpaceShipView.Position, otherSpaceship.Position) <= 2f &&
+                !SpaceShipView.HasFiredShockwave)
+                inputData.fireShockwave = true;
             
             return inputData;
         }
+        
+        private void Whisky(ref float targetOrientation)
+        {
+            float Fradians = SpaceShipView.Orientation * Mathf.Deg2Rad;
+            float Fsin = Mathf.Sin(Fradians);
+            float Fcos = Mathf.Cos(Fradians);
+            
+            Vector2 forward = new Vector2(Fcos * 1 - Fsin * 1, Fsin * 1 + Fcos * 1).normalized;
 
+            foreach (AsteroidView current in GameData.Asteroids)
+            {
+                if (Vector2.Distance(SpaceShipView.Position + (forward * _whiskersLenght), current.Position) <=
+                    current.Radius + _whiskersLenght)
+                {
+                    Fradians = (SpaceShipView.Orientation + 90) * Mathf.Deg2Rad;
+                    Fsin = Mathf.Sin(Fradians);
+                    Fcos = Mathf.Cos(Fradians);
+                    Vector2 left = new Vector2(Fcos * 1 - Fsin * 1, Fsin * 1 + Fcos * 1) + SpaceShipView.Position;
+                    Fradians = (SpaceShipView.Orientation - 90) * Mathf.Deg2Rad;
+                    Fsin = Mathf.Sin(Fradians);
+                    Fcos = Mathf.Cos(Fradians);
+                    Vector2 right = new Vector2(Fcos * 1 - Fsin * 1, Fsin * 1 + Fcos * 1) + SpaceShipView.Position;
+
+                    //Debug.Log($"{Vector2.Distance(right, current.Position)} | {Vector2.Distance(left, current.Position)}");
+                    if (Vector2.Distance(right, current.Position) < Vector2.Distance(left, current.Position))
+                    {
+                        targetOrientation -= 90f;
+                        //Debug.Log("turn left");
+                    }
+                    else
+                    {
+                        targetOrientation += 90f;
+                        //Debug.Log("turn right");
+                    }
+
+                    inputData.shoot = false;
+                    return;
+                }
+            }
+        }
+            
         /*Vector2 Target(GameData data, SpaceShipView spaceship)
         {
             int index = 0;

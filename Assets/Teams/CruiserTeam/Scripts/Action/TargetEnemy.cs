@@ -24,10 +24,9 @@ namespace CruiserTeam
         }
         public override TaskStatus OnUpdate()
         {
-            Debug.Log("Shoot Mod");
             ShootEnemy();
             
-            if (CruiserController.Instance.SpaceShipView.HasShot)
+            if (CruiserController.Instance.SpaceShipView.HasShot || CruiserController.Instance.SpaceShipView.HasFiredShockwave)
                 return TaskStatus.Success;
             else
                 return TaskStatus.Running;
@@ -41,21 +40,19 @@ namespace CruiserTeam
             {
                 CruiserController.Instance.inputData.thrust = 0.5f;
                 CruiserController.Instance.inputData.targetOrientation =
-                    AimingHelpers.ComputeSteeringOrient(_spaceship, _otherSpaceship.Position, 1.2f);
+                    AimingHelpers.ComputeSteeringOrient(_spaceship, _otherSpaceship.Position + _otherSpaceship.Velocity, 1.2f);
             }
             else
             {
                 CruiserController.Instance.inputData.thrust = 0;
                 CruiserController.Instance.inputData.targetOrientation =
-                    AimingHelpers.ComputeSteeringOrient(_spaceship, _otherSpaceship.Position, 1f);
+                    AimingHelpers.ComputeSteeringOrient(_spaceship, _otherSpaceship.Position + _otherSpaceship.Velocity, 1f);
             }
             
-            CruiserController.Instance.inputData.shoot = AimingHelpers.CanHit(_spaceship,  CruiserController.Instance.GetEnemySpaceship.Position, CruiserController.Instance.GetEnemySpaceship.Velocity, 0.15f) &&
+            CruiserController.Instance.inputData.shoot = AimingHelpers.CanHit(_spaceship,  CruiserController.Instance.GetEnemySpaceship.Position, CruiserController.Instance.GetEnemySpaceship.Velocity, 3) &&
                                                          CruiserController.Instance.SpaceShipView.Energy >= 0.6f &&
                                                          CruiserController.Instance.GetEnemySpaceship.HitPenaltyCountdown == 0 &&
                                                          CruiserController.Instance.GetEnemySpaceship.StunPenaltyCountdown == 0;
-            
-            Debug.Log($"Target : {AimingHelpers.CanHit(_spaceship,  CruiserController.Instance.GetEnemySpaceship.Position, CruiserController.Instance.GetEnemySpaceship.Velocity, 0.15f)} | {CruiserController.Instance.SpaceShipView.Energy >= 0.6f}");
         }
     }
 

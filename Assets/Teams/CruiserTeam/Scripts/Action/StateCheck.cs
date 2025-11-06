@@ -22,7 +22,7 @@ namespace Cruiser
         [BehaviorDesigner.Runtime.Tasks.Tooltip("Condition 2 : The energy left in the enemy spaceship")]
         public SharedFloat enemyEnergyLeft = 0.4f;
         [BehaviorDesigner.Runtime.Tasks.Tooltip("Condition 2 : The distance gap between our and the enemy spaceship")]
-        public SharedFloat withinDistance = 2f;
+        public SharedFloat withinDistance = 1f;
         
         
         public override void OnStart()
@@ -33,17 +33,18 @@ namespace Cruiser
         public override TaskStatus OnUpdate()
         {
             
-            if ((controller.SpaceShipView.Score - controller.GetEnemySpaceship.Score) <=
+            if (((controller.SpaceShipView.Score - controller.GetEnemySpaceship.Score) <=
                 pointGap.Value || /*Condition 1*/
                 (controller.GetEnemySpaceship.Energy <= enemyEnergyLeft.Value &&
                  Vector2.Distance(controller.SpaceShipView.Position, controller.GetEnemySpaceship.Position) <=
-                 withinDistance.Value) || /*Condition 2*/
+                 withinDistance.Value) &&
+                controller.GetEnemySpaceship.StunPenaltyCountdown <= 0) || /*Condition 2*/
                 !CheckWayPoints()) 
             {
                 currentState.SetValue(1);
             }
             else
-                currentState.SetValue(1);
+                currentState.SetValue(0);
 
             //Debug.Log($"State check {currentState.Value} : {(controller.SpaceShipView.Score - controller.GetEnemySpaceship.Score) <= pointGap.Value} | {(controller.GetEnemySpaceship.Energy <= enemyEnergyLeft.Value && Vector2.Distance(controller.SpaceShipView.Position, controller.GetEnemySpaceship.Position) <= withinDistance.Value)} | {!CheckWayPoints()}");
             

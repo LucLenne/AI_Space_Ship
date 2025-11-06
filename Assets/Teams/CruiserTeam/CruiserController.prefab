@@ -49,6 +49,12 @@ MonoBehaviour:
   tree: {fileID: 3039252958360588374}
   clusteringTool: {fileID: 117832542599978314}
   _clusters: []
+  _whiskersLenght: 0.5
+  _whiskersRadius:
+  - 45
+  - 15
+  - 30
+  - 60
 --- !u!114 &117832542599978314
 MonoBehaviour:
   m_ObjectHideFlags: 0

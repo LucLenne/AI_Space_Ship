@@ -28,8 +28,6 @@ namespace Cruiser
 
         public override TaskStatus OnUpdate()
         {
-            Debug.Log("Move Mod");
-            
             if (followRoutine != null)
             {
                 return TaskStatus.Running;
