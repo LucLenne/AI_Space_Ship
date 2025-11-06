@@ -13,10 +13,14 @@ namespace CruiserTeam
         [Space(10)]
         [SerializeField] private List<WayPointCluster> _clusters;
         
-        [Space(10)]
+        [Header("Whiskers")]
         [SerializeField] private float _whiskersLenght = 1f;
-        [SerializeField] private List<float> _whiskersRadius = new List<float>();
-        private List<Vector2> _whiskersVectors = new List<Vector2>();
+
+        [Header("Clusters")]
+        [SerializeField] private float _enemyPresenceWeight = -50f;
+        [SerializeField] private float _distanceMultiplier = 1f;
+        [SerializeField] private float _enemyWaypoint = 5f;
+        [SerializeField] private float _neutralWaypoint = 2.5f;
 
         private bool _passInit = false;
         private GameData _gameData;
@@ -76,9 +80,6 @@ namespace CruiserTeam
             #endregion
 
             _clusters = clusteringTool.InitializeClustering(data);
-            
-            _whiskersRadius.Sort();
-            _whiskersRadius.Reverse();
         }
 
         public override InputData UpdateInput(SpaceShipView spaceship, GameData data)
