@@ -11,9 +11,11 @@ namespace Cruiser
     public class MoveToCluster : Action
     {
         public AnimationCurve thrustAnglePower;
-        public bool wipedMovement;
         private Coroutine followRoutine;
         private List<TargetPath> path;
+
+
+
         public override void OnStart()
         {
             followRoutine = StartCoroutine(FollowPath());
@@ -21,9 +23,6 @@ namespace Cruiser
 
         public override TaskStatus OnUpdate()
         {
-            if (wipedMovement)
-                return TaskStatus.Failure;
-
             if (followRoutine != null)
             {
                 return TaskStatus.Running;
