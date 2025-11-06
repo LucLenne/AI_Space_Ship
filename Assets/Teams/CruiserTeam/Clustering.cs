@@ -34,6 +34,7 @@ namespace CruiserTeam
             if (wayPoints.Count <= 0)
             {
                 _averagePos = Vector2.zero;
+                clusterRadius = 0;
                 centerDistance = 0;
                 weight = 0;
             }
@@ -44,9 +45,18 @@ namespace CruiserTeam
                 {
                     average += current.Position;
                 }
-
                 _averagePos = average / wayPoints.Count;
                 centerDistance = _averagePos.magnitude;
+
+                float furthest = 0;
+                foreach (WayPointView current in wayPoints)
+                {
+                    if (Vector2.Distance(current.Position, average) + current.Radius > furthest)
+                        furthest = Vector2.Distance(current.Position, average) + current.Radius;
+                }
+
+                clusterRadius = furthest;
+                
                 weight = 0;
             }
         }
@@ -66,6 +76,7 @@ namespace CruiserTeam
                     return _averagePos;
             }
         }
+        public float clusterRadius {get; private set;}
 
         // Returns the number of points that aren't the owner's one
         public int nbCapturablePoints(int a_owner)
@@ -189,7 +200,7 @@ namespace CruiserTeam
 
     public class Clustering : MonoBehaviour
     {
-        private enum Direction
+        public enum Direction
         {
             Center,
             UpLeft,
@@ -268,7 +279,7 @@ namespace CruiserTeam
         /// Get point depending on which zone it is situated on
         /// </summary>
         /// <returns></returns>
-        private ClusterBinaryTree GetPointInZone(Direction a_dir, List<WayPointView> a_data)
+        public ClusterBinaryTree GetPointInZone(Direction a_dir, List<WayPointView> a_data)
         {
             ClusterBinaryTree node = new ClusterBinaryTree();
 

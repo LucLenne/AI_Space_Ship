@@ -24,6 +24,21 @@ namespace CruiserTeam
         public GameData GameData { get => _gameData; private set => _gameData = value; }
         public List<WayPointCluster> Clusters { get => _clusters; set => _clusters = value; }
 
+        public int GetEnemyOwner
+        {
+            get
+            {
+                if (SpaceShipView.Owner == 1)
+                    return 0;
+                else
+                    return 1;
+            }
+        }
+        public SpaceShipView GetEnemySpaceship
+        {
+            get => GameData.SpaceShips[GetEnemyOwner];
+        }
+
         private void Awake()
         {
             if (Instance != null)
