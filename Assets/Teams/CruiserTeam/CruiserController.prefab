@@ -106,8 +106,8 @@ MonoBehaviour:
         Int","Instant":true,"SharedIntvariable":{"Type":"BehaviorDesigner.Runtime.SharedInt","Name":"State","IsShared":true,"Tooltip":"0
         = Passive | 1 = Agressive","Int32mValue":0},"OPERATORop":"EQUAL","SharedIntcompareTo":{"Type":"BehaviorDesigner.Runtime.SharedInt","Name":null,"Int32mValue":1}},{"Type":"BehaviorDesigner.Runtime.Tasks.ReturnSuccess","NodeData":{"Offset":"(2.43904114,135.3659)"},"ID":7,"Name":"Return
         Success","Instant":true,"Children":[{"Type":"CruiserTeam.TargetEnemy","NodeData":{"Offset":"(-4,105)"},"ID":8,"Name":"Target
-        Enemy","Instant":true,"SingleangleToleranceShoot":0}]}]},{"Type":"Cruiser.MoveToCluster","NodeData":{"Offset":"(100,170)"},"ID":9,"Name":"Move
-        To Cluster","Instant":true,"AnimationCurvethrustAnglePower":{"Keys":[[0,0,0,0],[1,1,0,0]],"PreWrapMode":"ClampForever","PostWrapMode":"ClampForever"},"SharedFloatignoreTargetRadius":{"Type":"BehaviorDesigner.Runtime.SharedFloat","Name":null,"SinglemValue":0.5},"SharedFloataimingHelperOvershoot":{"Type":"BehaviorDesigner.Runtime.SharedFloat","Name":null,"SinglemValue":1.2}}]}]}]},"Variables":[{"Type":"BehaviorDesigner.Runtime.SharedInt","Name":"State","IsShared":true,"Tooltip":"0
+        Enemy","Instant":true,"SingleangleToleranceShoot":0,"SharedFloatDistanceToStop":{"Type":"BehaviorDesigner.Runtime.SharedFloat","Name":null,"SinglemValue":2}}]}]},{"Type":"Cruiser.MoveToCluster","NodeData":{"Offset":"(100,170)"},"ID":9,"Name":"Move
+        To Cluster","Instant":true,"AnimationCurvethrustAnglePower":{"Keys":[[0,0,0,0],[1,1,0,0]],"PreWrapMode":"ClampForever","PostWrapMode":"ClampForever"},"SharedFloatignoreTargetRadius":{"Type":"BehaviorDesigner.Runtime.SharedFloat","Name":null,"SinglemValue":0.4},"SharedFloataimingHelperOvershoot":{"Type":"BehaviorDesigner.Runtime.SharedFloat","Name":null,"SinglemValue":1.2}}]}]}]},"Variables":[{"Type":"BehaviorDesigner.Runtime.SharedInt","Name":"State","IsShared":true,"Tooltip":"0
         = Passive | 1 = Agressive","Int32mValue":0}]}'
       fieldSerializationData:
         typeName: []

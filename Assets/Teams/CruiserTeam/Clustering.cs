@@ -36,7 +36,6 @@ namespace CruiserTeam
                 _averagePos = Vector2.zero;
                 clusterRadius = 0;
                 centerDistance = 0;
-                weight = 0;
             }
             else
             {
@@ -55,15 +54,12 @@ namespace CruiserTeam
                         furthest = Vector2.Distance(current.Position, average) + current.Radius;
                 }
 
-                clusterRadius = furthest;
-                
-                weight = 0;
+                clusterRadius = furthest + wayPoints[0].Radius;
             }
         }
 
         public List<WayPointView> wayPoints;
-
-        public float weight;
+        
         public float centerDistance { get; private set; }
         private Vector2 _averagePos;
         public Vector2 averagePos
@@ -187,6 +183,26 @@ namespace CruiserTeam
             }
             
             return trajectory;
+        }
+
+        public float GetWeight(SpaceShipView a_spaceship, SpaceShipView a_enemy)
+        {
+            float weight = 0;
+
+            weight -= Vector2.Distance(a_spaceship.Position, _averagePos);
+            
+            if (Vector2.Distance(a_enemy.Position, _averagePos) <= clusterRadius)
+                weight -= 50;
+            
+            foreach (WayPointView current in wayPoints)
+            {
+                if (current.Owner == a_enemy.Owner)
+                    weight += 5;
+                else if (current.Owner != a_spaceship.Owner)
+                    weight += 2.5f;
+            }
+
+            return weight;
         }
     }
 

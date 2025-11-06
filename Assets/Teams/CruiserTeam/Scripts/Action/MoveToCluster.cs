@@ -16,7 +16,7 @@ namespace Cruiser
         private List<TargetPath> path;
 
         [BehaviorDesigner.Runtime.Tasks.Tooltip("The distance before the Spaceship ignores the current target (gives smoother trajectory, 0.5 by default).")]
-        public SharedFloat ignoreTargetRadius = 0.5f;
+        public SharedFloat ignoreTargetRadius = 0.4f;
         [BehaviorDesigner.Runtime.Tasks.Tooltip("The overshoot angle at which the spaceship will turn when a target is given (1.2 by default).")]
         public SharedFloat aimingHelperOvershoot = 1.2f;
 
@@ -55,14 +55,15 @@ namespace Cruiser
         WayPointCluster BestCluster()
         {
             WayPointCluster closerCluster = new WayPointCluster();
-            float minDistance = float.MaxValue;
+            float minDistance = float.MinValue;
             List<WayPointCluster> clusters = CruiserController.Instance.Clusters;
             foreach (WayPointCluster cluster in clusters)
             {
-                float currentDistance = Vector2.Distance(cluster.averagePos, CruiserController.Instance.SpaceShipView.Position);
-                if (minDistance > currentDistance && cluster.nbCapturablePoints(CruiserController.Instance.SpaceShipView.Owner) > 0)
+                
+                float currentWeight = cluster.GetWeight(CruiserController.Instance.SpaceShipView, CruiserController.Instance.GetEnemySpaceship);
+                if (minDistance < currentWeight && cluster.nbCapturablePoints(CruiserController.Instance.SpaceShipView.Owner) > 0)
                 {
-                    minDistance = currentDistance;
+                    minDistance = currentWeight;
                     closerCluster = cluster;
                 }
             }
@@ -88,13 +89,14 @@ namespace Cruiser
                 float thrust = ComputeThurst(spaceship, currentTarget);
 
                 bool shouldLayMine = false;
-                if (Vector2.Distance(spaceship.Position, path[indexTargetPath].position) <= ignoreTargetRadius.Value)
+                if (Vector2.Distance(spaceship.Position, path[indexTargetPath].position) <= ignoreTargetRadius.Value ||
+                    path[indexTargetPath].wayPoint.Owner == spaceship.Owner)
                 {
-                    Debug.Log("energy : " + spaceship.Energy);
+                    //Debug.Log("energy : " + spaceship.Energy);
                     hasReached = true;
                     if (spaceship.Energy >= 0.99f)
                     {
-                        Debug.Log("index : " + indexTargetPath);
+                        //Debug.Log("index : " + indexTargetPath);
                         if (indexTargetPath == 0 || indexTargetPath == path.Count - 1)
                             shouldLayMine = true;
                     }
