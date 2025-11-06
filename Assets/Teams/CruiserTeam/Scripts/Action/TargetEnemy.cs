@@ -49,7 +49,7 @@ namespace CruiserTeam
                     AimingHelpers.ComputeSteeringOrient(_spaceship, _otherSpaceship.Position + _otherSpaceship.Velocity, 1f);
             }
             
-            CruiserController.Instance.inputData.shoot = AimingHelpers.CanHit(_spaceship,  CruiserController.Instance.GetEnemySpaceship.Position, CruiserController.Instance.GetEnemySpaceship.Velocity, 3) &&
+            CruiserController.Instance.inputData.shoot = AimingHelpers.CanHit(_spaceship,  CruiserController.Instance.GetEnemySpaceship.Position, CruiserController.Instance.GetEnemySpaceship.Velocity, 5) &&
                                                          CruiserController.Instance.SpaceShipView.Energy >= 0.6f &&
                                                          CruiserController.Instance.GetEnemySpaceship.HitPenaltyCountdown == 0 &&
                                                          CruiserController.Instance.GetEnemySpaceship.StunPenaltyCountdown == 0;

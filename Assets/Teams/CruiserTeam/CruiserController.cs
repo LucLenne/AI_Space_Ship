@@ -93,6 +93,14 @@ namespace CruiserTeam
                 !SpaceShipView.HasFiredShockwave)
                 inputData.fireShockwave = true;
             
+            inputData.shoot = AimingHelpers.CanHit(spaceship,  CruiserController.Instance.GetEnemySpaceship.Position, CruiserController.Instance.GetEnemySpaceship.Velocity, 5) &&
+                                                         CruiserController.Instance.SpaceShipView.Energy >= 0.6f &&
+                                                         CruiserController.Instance.GetEnemySpaceship.HitPenaltyCountdown == 0 &&
+                                                         CruiserController.Instance.GetEnemySpaceship.StunPenaltyCountdown == 0;
+            
+            if (inputData.dropMine && spaceship.HasDroppedMine)
+                inputData.dropMine = false;
+            
             return inputData;
         }
         
