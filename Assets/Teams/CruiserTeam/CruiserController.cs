@@ -80,7 +80,8 @@ namespace CruiserTeam
             SpaceShipView otherSpaceship = data.GetSpaceShipForOwner(1 - spaceship.Owner);
             //AimingHelpers.ComputeSteeringOrient(spaceship, Target(data, spaceship));
 
-            bool needShoot = AimingHelpers.CanHit(spaceship, otherSpaceship.Position, otherSpaceship.Velocity, 0.15f);
+            //bool needShoot = AimingHelpers.CanHit(spaceship, otherSpaceship.Position, otherSpaceship.Velocity, 0.15f);
+            
             return inputData;
         }
 
