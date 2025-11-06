@@ -90,11 +90,9 @@ namespace Cruiser
                 bool shouldLayMine = false;
                 if (Vector2.Distance(spaceship.Position, path[indexTargetPath].position) <= ignoreTargetRadius.Value)
                 {
-                    Debug.Log("energy : " + spaceship.Energy);
                     hasReached = true;
                     if (spaceship.Energy >= 0.99f)
                     {
-                        Debug.Log("index : " + indexTargetPath);
                         if (indexTargetPath == 0 || indexTargetPath == path.Count - 1)
                             shouldLayMine = true;
                     }

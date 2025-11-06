@@ -12,7 +12,7 @@ namespace CruiserTeam
 
         [Space(10)]
         [SerializeField] private List<WayPointCluster> _clusters;
-        
+
         [Space(10)]
         [SerializeField] private float _whiskersLenght = 1f;
         [SerializeField] private List<float> _whiskersRadius = new List<float>();
@@ -76,32 +76,35 @@ namespace CruiserTeam
             #endregion
 
             _clusters = clusteringTool.InitializeClustering(data);
-            
+
             _whiskersRadius.Sort();
             _whiskersRadius.Reverse();
         }
 
         public override InputData UpdateInput(SpaceShipView spaceship, GameData data)
         {
+            if (inputData.shoot)
+                inputData.shoot = false;
             GameData = data;
             SpaceShipView = spaceship;
             SpaceShipView otherSpaceship = data.GetSpaceShipForOwner(1 - spaceship.Owner);
-            
+
             Whisky(ref inputData.targetOrientation);
+            DestroyMine(spaceship, data);
 
             if (Vector2.Distance(SpaceShipView.Position, otherSpaceship.Position) <= 2f &&
                 !SpaceShipView.HasFiredShockwave)
                 inputData.fireShockwave = true;
-            
+
             return inputData;
         }
-        
+
         private void Whisky(ref float targetOrientation)
         {
             float Fradians = SpaceShipView.Orientation * Mathf.Deg2Rad;
             float Fsin = Mathf.Sin(Fradians);
             float Fcos = Mathf.Cos(Fradians);
-            
+
             Vector2 forward = new Vector2(Fcos * 1 - Fsin * 1, Fsin * 1 + Fcos * 1).normalized;
 
             foreach (AsteroidView current in GameData.Asteroids)
@@ -135,22 +138,17 @@ namespace CruiserTeam
                 }
             }
         }
-            
-        /*Vector2 Target(GameData data, SpaceShipView spaceship)
+        private void DestroyMine(SpaceShipView spaceship, GameData data)
         {
-            int index = 0;
-            float closerWayPoint = Mathf.Infinity;
-            for (int i = 0; i < _clusters.Count; i++)
+            foreach (MineView mine in data.Mines)
             {
-                float actualDistance = Vector2.Distance(spaceship.Position, _clusters[i].averagePos);
-                if (actualDistance < closerWayPoint && _clusters[i].nbCapturablePoints(spaceship.Owner) > 0)
+                if (AimingHelpers.CanHit(spaceship, mine.Position, 5f) && Vector2.Distance(spaceship.Position, mine.Position) < 2f)
                 {
-                    closerWayPoint = actualDistance;
-                    index = i;
+                    inputData.targetOrientation = AimingHelpers.ComputeSteeringOrient(spaceship, mine.Position);
+                    inputData.shoot = true;
                 }
             }
+        }
 
-            return _clusters[index].OptimalTrajectory(spaceship)[0];
-        }*/
     }
 }
