@@ -1,5 +1,7 @@
 using BehaviorDesigner.Runtime.Tasks;
 using DoNotModify;
+using UnityEngine;
+
 namespace CruiserTeam
 {
     [TaskCategory("CruiserTeam")]
@@ -18,13 +20,19 @@ namespace CruiserTeam
         }
         public override TaskStatus OnUpdate()
         {
+            Debug.Log("Shoot Mod");
             ShootEnemy();
-            return TaskStatus.Running;
+            
+            if (CruiserController.Instance.SpaceShipView.HasShot)
+                return TaskStatus.Success;
+            else
+                return TaskStatus.Running;
         }
         void ShootEnemy()
         {
-            AimingHelpers.ComputeSteeringOrient(_spaceship, _otherSpaceship.Position);
-            AimingHelpers.CanHit(_spaceship, _otherSpaceship.Position, angleToleranceShoot);
+            CruiserController.Instance.inputData.targetOrientation = AimingHelpers.ComputeSteeringOrient(_spaceship, _otherSpaceship.Position);
+            CruiserController.Instance.inputData.shoot = AimingHelpers.CanHit(_spaceship, _otherSpaceship.Position, angleToleranceShoot) &&
+                                                         CruiserController.Instance.SpaceShipView.Energy >= 0.6f;
         }
     }
 

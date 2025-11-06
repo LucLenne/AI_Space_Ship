@@ -32,18 +32,35 @@ namespace Cruiser
 
         public override TaskStatus OnUpdate()
         {
+            
             if ((controller.SpaceShipView.Score - controller.GetEnemySpaceship.Score) <=
                 pointGap.Value || /*Condition 1*/
                 (controller.GetEnemySpaceship.Energy <= enemyEnergyLeft.Value &&
                  Vector2.Distance(controller.SpaceShipView.Position, controller.GetEnemySpaceship.Position) <=
-                 withinDistance.Value)) /*Condition 2*/
+                 withinDistance.Value) || /*Condition 2*/
+                !CheckWayPoints()) 
             {
-                currentState.Value = 1;
+                currentState.SetValue(1);
             }
             else
-                currentState.Value = 0;
+                currentState.SetValue(0);
 
+            Debug.Log($"State check {currentState.Value} : {(controller.SpaceShipView.Score - controller.GetEnemySpaceship.Score) <= pointGap.Value} | {(controller.GetEnemySpaceship.Energy <= enemyEnergyLeft.Value && Vector2.Distance(controller.SpaceShipView.Position, controller.GetEnemySpaceship.Position) <= withinDistance.Value)} | {!CheckWayPoints()}");
+            
             return TaskStatus.Success;
+        }
+
+        private bool CheckWayPoints()
+        {
+            bool result = false;
+            
+            foreach (WayPointView current in controller.GameData.WayPoints)
+            {
+                if (current.Owner != controller.SpaceShipView.Owner)
+                    result = true;
+            }
+
+            return result;
         }
     }
 }
