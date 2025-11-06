@@ -13,7 +13,7 @@ namespace Cruiser
         public AnimationCurve thrustAnglePower;
         private Coroutine followRoutine;
         private List<TargetPath> path;
-
+        public Shared
 
 
         public override void OnStart()
@@ -100,7 +100,7 @@ namespace Cruiser
                 }
 
 
-                float targetPos = AimingHelpers.ComputeSteeringOrient(spaceship, target);
+                float targetPos = AimingHelpers.ComputeSteeringOrient(spaceship, target, 1.0f);
                 float thrust = ComputeThurst(spaceship, target);
 
                 CruiserController.Instance.inputData =
