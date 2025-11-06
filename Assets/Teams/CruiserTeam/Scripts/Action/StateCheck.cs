@@ -43,9 +43,9 @@ namespace Cruiser
                 currentState.SetValue(1);
             }
             else
-                currentState.SetValue(0);
+                currentState.SetValue(1);
 
-            Debug.Log($"State check {currentState.Value} : {(controller.SpaceShipView.Score - controller.GetEnemySpaceship.Score) <= pointGap.Value} | {(controller.GetEnemySpaceship.Energy <= enemyEnergyLeft.Value && Vector2.Distance(controller.SpaceShipView.Position, controller.GetEnemySpaceship.Position) <= withinDistance.Value)} | {!CheckWayPoints()}");
+            //Debug.Log($"State check {currentState.Value} : {(controller.SpaceShipView.Score - controller.GetEnemySpaceship.Score) <= pointGap.Value} | {(controller.GetEnemySpaceship.Energy <= enemyEnergyLeft.Value && Vector2.Distance(controller.SpaceShipView.Position, controller.GetEnemySpaceship.Position) <= withinDistance.Value)} | {!CheckWayPoints()}");
             
             return TaskStatus.Success;
         }
