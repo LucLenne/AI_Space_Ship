@@ -3,6 +3,7 @@ using CruiserTeam;
 using DoNotModify;
 using System.Collections;
 using System.Collections.Generic;
+using BehaviorDesigner.Runtime;
 using UnityEngine;
 
 namespace Cruiser
@@ -13,7 +14,11 @@ namespace Cruiser
         public AnimationCurve thrustAnglePower;
         private Coroutine followRoutine;
         private List<TargetPath> path;
-        public Shared
+        
+        [BehaviorDesigner.Runtime.Tasks.Tooltip("The distance before the Spaceship ignores the current target (gives smoother trajectory, 0.5 by default).")]
+        public SharedFloat ignoreTargetRadius = 0.5f;
+        [BehaviorDesigner.Runtime.Tasks.Tooltip("The overshoot angle at which the spaceship will turn when a target is given (1.2 by default).")]
+        public SharedFloat aimingHelperOvershoot = 1.2f;
 
 
         public override void OnStart()
@@ -23,6 +28,8 @@ namespace Cruiser
 
         public override TaskStatus OnUpdate()
         {
+            Debug.Log("Move Mod");
+            
             if (followRoutine != null)
             {
                 return TaskStatus.Running;
@@ -90,7 +97,7 @@ namespace Cruiser
             while (!hasReached)
             {
                 Vector2 target;
-                if (indexTargetPath < path.Count - 1 && Vector2.Distance(path[indexTargetPath].position, spaceship.Position) <= 0.5f)
+                if (indexTargetPath < path.Count - 1 && Vector2.Distance(path[indexTargetPath].position, spaceship.Position) <= ignoreTargetRadius.Value)
                 {
                     target = path[indexTargetPath + 1].position;
                 }
@@ -100,7 +107,7 @@ namespace Cruiser
                 }
 
 
-                float targetPos = AimingHelpers.ComputeSteeringOrient(spaceship, target, 1.0f);
+                float targetPos = AimingHelpers.ComputeSteeringOrient(spaceship, target, aimingHelperOvershoot.Value);
                 float thrust = ComputeThurst(spaceship, target);
 
                 CruiserController.Instance.inputData =
@@ -108,7 +115,7 @@ namespace Cruiser
 
 
 
-                // Détection : si le vaisseau est passé dans le cercle
+                // Dï¿½tection : si le vaisseau est passï¿½ dans le cercle
                 if (path[indexTargetPath].wayPoint.Owner == spaceship.Owner)
                     hasReached = true;
 
@@ -143,7 +150,7 @@ namespace Cruiser
             // Distance actuelle
             float d = toAst.magnitude;
 
-            // Si déjà trop proche : esquive d’urgence
+            // Si dï¿½jï¿½ trop proche : esquive dï¿½urgence
             if (d < avoidRadius * 1.2f)
             {
                 Vector2 escapeDir = (spaceship.Position - asteroid.Position).normalized;
@@ -153,7 +160,7 @@ namespace Cruiser
             // Angle tangent
             float angleOffset = Mathf.Acos(avoidRadius / d);
 
-            // Direction générale
+            // Direction gï¿½nï¿½rale
             float baseAngle = Mathf.Atan2(toAst.y, toAst.x);
 
             // Deux options
