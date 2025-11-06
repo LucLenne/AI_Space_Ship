@@ -7,6 +7,11 @@ using UnityEngine;
 
 namespace Cruiser
 {
+    public struct TargetPath
+    {
+        public Vector2 position;
+        public WayPointView wayPoint;
+    }
     [TaskCategory("CruiserTeam")]
     public class MoveToCluster : Action
     {
@@ -34,10 +39,10 @@ namespace Cruiser
             //Init Value
             GameData data = CruiserController.Instance.GameData;
             SpaceShipView spaceship = CruiserController.Instance.SpaceShipView;
-            List<Vector2> path = BestCluster().OptimalTrajectory(spaceship);
+            List<TargetPath> path = BestCluster().OptimalTrajectory(spaceship);
             for (int i = 0; i < path.Count; i++)
             {
-                Vector2 currentTarget = path[i];
+                TargetPath currentTarget = path[i];
 
                 bool changed;
                 do
@@ -45,9 +50,9 @@ namespace Cruiser
                     changed = false;
                     foreach (AsteroidView asteroid in data.Asteroids)
                     {
-                        if (SegmentCircleIntersection(spaceship.Position, currentTarget, asteroid.Position, asteroid.Radius))
+                        if (SegmentCircleIntersection(spaceship.Position, currentTarget.position, asteroid.Position, asteroid.Radius))
                         {
-                            currentTarget = AvoidAsteroid(asteroid, spaceship, currentTarget);
+                            currentTarget.position = AvoidAsteroid(asteroid, spaceship, currentTarget.position);
                             changed = true;
                         }
                     }
@@ -77,21 +82,21 @@ namespace Cruiser
             return closerCluster;
         }
 
-        IEnumerator MoveTo(Vector2 target, SpaceShipView spaceship, GameData data)
+        IEnumerator MoveTo(TargetPath target, SpaceShipView spaceship, GameData data)
         {
             bool hasReached = false;
-            float radius = spaceship.Radius + data.WayPoints[0].Radius;
+            float radius = spaceship.Radius;
 
             while (!hasReached)
             {
-                float targetPos = AimingHelpers.ComputeSteeringOrient(spaceship, target);
-                float thrust = ComputeThurst(spaceship, target);
+                float targetPos = AimingHelpers.ComputeSteeringOrient(spaceship, target.position);
+                float thrust = ComputeThurst(spaceship, target.position);
 
                 CruiserController.Instance.inputData =
                     new InputData(thrust, targetPos, false, false, false);
 
                 // Détection : si le vaisseau est passé dans le cercle
-                if (Vector2.Distance(spaceship.Position, target) < radius)
+                if (target.wayPoint.Owner == spaceship.Owner)
                     hasReached = true;
 
                 yield return null;
