@@ -11,6 +11,7 @@ namespace Cruiser
     public class MoveToCluster : Action
     {
         public AnimationCurve thrustAnglePower;
+        public bool wipedMovement;
         private Coroutine followRoutine;
         private List<TargetPath> path;
         public override void OnStart()
@@ -20,6 +21,9 @@ namespace Cruiser
 
         public override TaskStatus OnUpdate()
         {
+            if (wipedMovement)
+                return TaskStatus.Failure;
+
             if (followRoutine != null)
             {
                 return TaskStatus.Running;
@@ -28,6 +32,8 @@ namespace Cruiser
             {
                 return TaskStatus.Success;
             }
+
+
         }
         IEnumerator FollowPath()
         {
@@ -133,7 +139,7 @@ namespace Cruiser
         Vector2 AvoidAsteroid(AsteroidView asteroid, SpaceShipView spaceship, Vector2 target)
         {
             Vector2 toAst = asteroid.Position - spaceship.Position;
-            float avoidRadius = spaceship.Radius + asteroid.Radius;
+            float avoidRadius = spaceship.Radius * 1.5f + asteroid.Radius;
 
             // Distance actuelle
             float d = toAst.magnitude;
